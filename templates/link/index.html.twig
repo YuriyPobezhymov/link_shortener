@@ -8,21 +8,21 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Id</th>
                 <th>Link</th>
-                <th>Short_link</th>
+                <th>Short Link</th>
                 <th>actions</th>
             </tr>
         </thead>
         <tbody>
         {% for link in links %}
             <tr>
-                <td>{{ link.id }}</td>
                 <td>{{ link.link }}</td>
                 <td>{{ link.shortLink }}</td>
                 <td>
-                    <a href="{{ path('link_show', {'id': link.id}) }}">show</a>
-                    <a href="{{ path('link_edit', {'id': link.id}) }}">edit</a>
+                    <a class="btn btn-primary" href="{{ path('link_redirect', {'short_link': link.shortLink}) }}">trigger</a>
+                    <a class="btn btn-info" href="{{ path('link_show', {'short_link': link.shortLink}) }}">details</a>
+                    <a class="btn btn-success" href="{{ path('link_edit', {'short_link': link.shortLink}) }}">edit</a>
+                    {{ include('link/_delete_form.html.twig') }}
                 </td>
             </tr>
         {% else %}

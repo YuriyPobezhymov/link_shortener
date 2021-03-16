@@ -5,18 +5,19 @@ namespace App\Controller;
 use App\Entity\Link;
 use App\Form\LinkType;
 use App\Repository\LinkRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/link")
+ * @Route("/")
  */
 class LinkController extends AbstractController
 {
     /**
-     * @Route("/", name="link_index", methods={"GET"})
+     * @Route("/list", name="link_index", methods={"GET"})
      */
     public function index(LinkRepository $linkRepository): Response
     {
@@ -26,7 +27,7 @@ class LinkController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="link_new", methods={"GET","POST"})
+     * @Route("/", name="link_new", methods={"GET","POST"})
      */
     public function new(Request $request): Response
     {
@@ -36,6 +37,12 @@ class LinkController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
+
+            do {
+              $shortLink = substr(md5(uniqid(rand(), TRUE)), 0, random_int(5, 9));
+            } while($entityManager->getRepository(Link::class)->findOneBy(['short_link' => $shortLink]));
+
+            $link->setShortLink($shortLink);
             $entityManager->persist($link);
             $entityManager->flush();
 
@@ -49,7 +56,7 @@ class LinkController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="link_show", methods={"GET"})
+     * @Route("/view/{short_link}", name="link_show", methods={"GET"})
      */
     public function show(Link $link): Response
     {
@@ -59,7 +66,7 @@ class LinkController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="link_edit", methods={"GET","POST"})
+     * @Route("/edit/{short_link}", name="link_edit", methods={"GET","POST"})
      */
     public function edit(Request $request, Link $link): Response
     {
@@ -79,16 +86,38 @@ class LinkController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="link_delete", methods={"DELETE"})
+     * @Route("/delete_form/{short_link}", name="delete_form", methods={"GET","POST"})
+     */
+    public function deleteForm(Request $request, Link $link): Response
+    {
+      $form = $this->createForm(LinkType::class, $link);
+      $form->handleRequest($request);
+
+      return $this->render('link/_delete_form.html.twig', [
+        'link' => $link,
+        'form' => $form->createView(),
+      ]);
+    }
+
+    /**
+     * @Route("/delete/{short_link}", name="link_delete", methods={"DELETE"})
      */
     public function delete(Request $request, Link $link): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$link->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$link->getShortLink(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($link);
             $entityManager->flush();
         }
 
         return $this->redirectToRoute('link_index');
+    }
+
+    /**
+     * @Route("/{short_link}", name="link_redirect", methods={"GET"})
+     */
+    public function redirectTo(Link $link): Response
+    {
+      return $this->redirect($link->getLink());
     }
 }

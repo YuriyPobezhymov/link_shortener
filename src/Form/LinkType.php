@@ -13,7 +13,7 @@ class LinkType extends AbstractType
     {
         $builder
             ->add('link')
-            ->add('short_link')
+            //->add('short_link')
         ;
     }
 

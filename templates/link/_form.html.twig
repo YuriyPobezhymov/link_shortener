@@ -1,4 +1,5 @@
 {{ form_start(form) }}
     {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+    <button class="btn btn-primary">{{ button_label|default('Save') }}</button>
+    <a href="{{ path('link_index') }}">To list</a>
 {{ form_end(form) }}

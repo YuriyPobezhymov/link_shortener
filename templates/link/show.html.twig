@@ -21,10 +21,8 @@
             </tr>
         </tbody>
     </table>
-
-    <a href="{{ path('link_index') }}">back to list</a>
-
-    <a href="{{ path('link_edit', {'id': link.id}) }}">edit</a>
-
     {{ include('link/_delete_form.html.twig') }}
+    <a class="btn btn-secondary" href="{{ path('link_edit', {'short_link': link.shortLink}) }}">Edit</a>
+    <a href="{{ path('link_index') }}">To list</a>
+
 {% endblock %}

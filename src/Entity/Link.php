@@ -4,9 +4,13 @@ namespace App\Entity;
 
 use App\Repository\LinkRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Validator\UrlExist;
 
 /**
  * @ORM\Entity(repositoryClass=LinkRepository::class)
+ * @UniqueEntity(fields="short_link", message="This short link exist.")
  */
 class Link
 {
@@ -19,11 +23,15 @@ class Link
 
     /**
      * @ORM\Column(type="string", length=2048)
+     * @Assert\Sequentially({
+     *     @Assert\Url,
+     *     @UrlExist
+     * })
      */
     private $link;
 
     /**
-     * @ORM\Column(type="string", length=9)
+     * @ORM\Column(type="string", length=9, unique=true)
      */
     private $short_link;
 
